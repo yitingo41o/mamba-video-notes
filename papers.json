@@ -1,0 +1,119 @@
+[
+  {
+    "id": "2023-mamba",
+    "title": "Mamba: Linear-Time Sequence Modeling with Selective State Spaces",
+    "shortName": "Mamba",
+    "authors": "Albert Gu, Tri Dao",
+    "year": 2023,
+    "venue": "arXiv",
+    "arxiv": "2312.00752",
+    "code": "https://github.com/state-spaces/mamba",
+    "tags": [
+      "ssm",
+      "mamba",
+      "efficiency",
+      "language-model"
+    ],
+    "status": "read",
+    "readDate": "2026-11-16",
+    "tldr": "讓 SSM 參數隨輸入改變並用硬體感知掃描加速，線性複雜度、品質近 Transformer。",
+    "page": "papers/2023-mamba.html"
+  },
+  {
+    "id": "2024-vision-mamba",
+    "title": "Vision Mamba: Efficient Visual Representation Learning with Bidirectional State Space Model",
+    "shortName": "Vision Mamba (Vim)",
+    "authors": "Lianghui Zhu, Bencheng Liao, Qian Zhang, et al.",
+    "year": 2024,
+    "venue": "ICML 2024",
+    "arxiv": "2401.09417",
+    "code": "https://github.com/hustvl/Vim",
+    "tags": [
+      "mamba",
+      "vision-backbone",
+      "efficiency"
+    ],
+    "status": "read",
+    "readDate": "2026-11-16",
+    "tldr": "雙向 Mamba + 位置編碼取代 attention，比 DeiT 準且高解析度更省。",
+    "page": "papers/2024-vision-mamba.html"
+  },
+  {
+    "id": "2024-videomamba",
+    "title": "VideoMamba: State Space Model for Efficient Video Understanding",
+    "shortName": "VideoMamba",
+    "authors": "Kunchang Li, Xinhao Li, Yi Wang, et al.",
+    "year": 2024,
+    "venue": "ECCV 2024",
+    "arxiv": "2403.06977",
+    "code": "https://github.com/OpenGVLab/VideoMamba",
+    "tags": [
+      "mamba",
+      "video",
+      "action-recognition",
+      "long-video",
+      "self-distillation"
+    ],
+    "status": "read",
+    "readDate": "2026-11-16",
+    "tldr": "雙向 Mamba 延伸到時空 token，靠自蒸餾放大模型，短長影片皆適用。",
+    "page": "papers/2024-videomamba.html"
+  },
+  {
+    "id": "2021-s4",
+    "title": "Efficiently Modeling Long Sequences with Structured State Spaces",
+    "shortName": "S4",
+    "authors": "Albert Gu, Karan Goel, Christopher Ré",
+    "year": 2021,
+    "venue": "ICLR 2022",
+    "arxiv": "2111.00396",
+    "code": "https://github.com/state-spaces/s4",
+    "tags": [
+      "ssm",
+      "efficiency"
+    ],
+    "status": "to-read",
+    "readDate": "",
+    "tldr": "Mamba 的前身，想搞懂結構化 SSM 與卷積形式是怎麼來的。",
+    "page": null
+  },
+  {
+    "id": "2024-mamba-2",
+    "title": "Transformers are SSMs: Generalized Models and Efficient Algorithms Through Structured State Space Duality",
+    "shortName": "Mamba-2",
+    "authors": "Tri Dao, Albert Gu",
+    "year": 2024,
+    "venue": "ICML 2024",
+    "arxiv": "",
+    "code": "https://github.com/state-spaces/mamba",
+    "tags": [
+      "ssm",
+      "mamba",
+      "transformer",
+      "efficiency"
+    ],
+    "status": "to-read",
+    "readDate": "",
+    "tldr": "了解 SSM 與 attention 的對偶關係，以及比 Mamba 更快的新演算法。",
+    "page": null
+  },
+  {
+    "id": "2024-video-mamba-suite",
+    "title": "Video Mamba Suite: State Space Model as a Versatile Alternative for Video Understanding",
+    "shortName": "Video Mamba Suite",
+    "authors": "Guo Chen, Yifei Huang, Jilan Xu, et al.",
+    "year": 2024,
+    "venue": "arXiv",
+    "arxiv": "",
+    "code": "",
+    "tags": [
+      "mamba",
+      "video",
+      "action-recognition"
+    ],
+    "status": "to-read",
+    "readDate": "",
+    "tldr": "系統性比較 Mamba 在多種影片任務上的角色，可當 related work 的地圖。",
+    "page": null
+  }
+]

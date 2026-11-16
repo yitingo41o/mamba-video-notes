@@ -1,0 +1,56 @@
+[
+  {
+    "term": "State Space Model (SSM)",
+    "zh": "狀態空間模型",
+    "definition": "用一個隱藏狀態 h 隨時間更新來描述序列：新狀態由舊狀態與當前輸入決定，輸出再由狀態算出。源自控制理論（Kalman filter），可以寫成遞迴形式或卷積形式計算。",
+    "papers": ["2023-mamba", "2021-s4"]
+  },
+  {
+    "term": "Selective SSM (S6)",
+    "zh": "選擇性狀態空間模型",
+    "definition": "Mamba 的核心：讓 SSM 的 Δ、B、C 由當前輸入計算，而不是固定參數，模型因此能依內容決定要記住或忽略哪些資訊。代價是不能再用卷積形式平行計算。",
+    "papers": ["2023-mamba", "2024-vision-mamba", "2024-videomamba"]
+  },
+  {
+    "term": "Discretization step",
+    "zh": "離散化步長（Δ）",
+    "definition": "把連續時間的 SSM 參數轉成離散序列可用的參數時使用的步長。在 Mamba 中 Δ 由輸入決定：Δ 大代表重視當前輸入、重置狀態；Δ 小代表保留舊狀態、忽略當前輸入。",
+    "papers": ["2023-mamba"]
+  },
+  {
+    "term": "Hardware-aware scan",
+    "zh": "硬體感知掃描",
+    "definition": "Mamba 為了讓時變 SSM 仍然夠快而設計的 GPU 實作：在 SRAM 中融合計算、不把大狀態寫回 HBM，反向傳播時重新計算以節省記憶體。",
+    "papers": ["2023-mamba"]
+  },
+  {
+    "term": "Bidirectional scan",
+    "zh": "雙向掃描",
+    "definition": "對同一串 token 同時做正向與反向的 SSM 掃描再合併，讓每個 token 都能接收前後兩側的資訊。用來解決原版 Mamba 只能單向（因果）建模、不適合影像的問題。",
+    "papers": ["2024-vision-mamba", "2024-videomamba"]
+  },
+  {
+    "term": "Spatial-first scan",
+    "zh": "空間優先掃描",
+    "definition": "把影片的 3D 時空 token 攤平成 1D 序列的一種順序：先掃完同一幀內的所有空間 token，再換到下一幀。對應的另一種是時間優先（先掃同一位置的所有幀）。",
+    "papers": ["2024-videomamba"]
+  },
+  {
+    "term": "Self-distillation",
+    "zh": "自蒸餾",
+    "definition": "用同一系列中較小、已訓練好的模型當老師，引導較大模型的訓練。VideoMamba 用它來緩解純 Mamba 模型放大時容易 overfit 的問題。",
+    "papers": ["2024-videomamba"]
+  },
+  {
+    "term": "Local redundancy",
+    "zh": "局部冗餘",
+    "definition": "短影片片段中，相鄰幀與相鄰區域的內容高度相似，造成大量重複資訊。影片模型需要有效壓縮這些冗餘，才不會浪費計算。",
+    "papers": ["2024-videomamba"]
+  },
+  {
+    "term": "Two-person interaction recognition",
+    "zh": "雙人互動辨識",
+    "definition": "辨識兩個人之間的互動動作，例如握手、擁抱、推人。與單人動作辨識不同，模型除了要理解每個人的動作，還要建模兩人之間的相對關係。",
+    "papers": ["2024-videomamba"]
+  }
+]

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VideoMamba — Mamba 影片理解筆記</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body data-page="paper">
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="../index.html">Mamba <span>×</span> 影片理解筆記</a>
+      <nav class="site-nav">
+        <a href="../index.html" class="active">論文</a>
+        <a href="../glossary.html">名詞表</a>
+        <a href="../index.html#about">關於</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="breadcrumb"><a href="../index.html">論文</a> / VideoMamba</div>
+
+    <header class="paper-header">
+      <h1 class="paper-title">VideoMamba</h1>
+      <p class="paper-subtitle">VideoMamba: State Space Model for Efficient Video Understanding</p>
+      <div class="card-tags">
+        <span class="status status-read">已讀</span>
+        <span class="tag">mamba</span>
+        <span class="tag">video</span>
+        <span class="tag">action-recognition</span>
+        <span class="tag">long-video</span>
+        <span class="tag">self-distillation</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <a href="#info">基本資訊</a><a href="#tldr">一句話總結</a><a href="#problem">要解決的問題</a>
+      <a href="#method">方法重點</a><a href="#results">實驗與結果</a><a href="#pros-cons">優點與限制</a>
+      <a href="#relevance">與我研究的關聯</a><a href="#questions">待解問題與下一步</a><a href="#related">相關筆記</a>
+    </nav>
+
+    <section class="note-section" id="info">
+      <h2 data-n="01">基本資訊</h2>
+      <table class="info-table">
+        <tr><th>作者</th><td>Kunchang Li, Xinhao Li, Yi Wang, et al.（OpenGVLab / 上海 AI Lab、南京大學、中科院深圳先進院）</td></tr>
+        <tr><th>發表</th><td>ECCV 2024</td></tr>
+        <tr><th>arXiv</th><td><a href="https://arxiv.org/abs/2403.06977">2403.06977</a></td></tr>
+        <tr><th>程式碼</th><td><a href="https://github.com/OpenGVLab/VideoMamba">github.com/OpenGVLab/VideoMamba</a></td></tr>
+        <tr><th>閱讀狀態</th><td>已讀</td></tr>
+        <tr><th>閱讀日期</th><td>2026-11-16</td></tr>
+      </table>
+    </section>
+
+    <section class="note-section" id="tldr">
+      <h2 data-n="02">一句話總結</h2>
+      <div class="tldr">把 Vim 的雙向 Mamba 延伸到時空 token，並用自蒸餾解決放大時的 overfit，做出短影片、長影片都「更好、更快、更省」的純 SSM 影片模型。</div>
+    </section>
+
+    <section class="note-section" id="problem">
+      <h2 data-n="03">要解決的問題</h2>
+      <ul>
+        <li><b>兩大挑戰</b>：短片段內的大量時空冗餘（local redundancy），以及長影片中複雜的時空依賴（global dependencies）。</li>
+        <li><b>3D CNN</b>：擅長處理局部冗餘，但難以建模長距離依賴。</li>
+        <li><b>Video Transformer</b>：能建模全域依賴，但 attention 的二次方成本讓長影片、高解析度難以負擔。</li>
+        <li><b>UniFormer 等混合方法</b>：試圖結合兩者，但在長影片上仍有困難。作者的問題是：Mamba 能不能在影片理解上做好？</li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="method">
+      <h2 data-n="04">方法重點</h2>
+      <ol>
+        <li><b>純 SSM 影片架構</b>：用 3D patch embedding 把影片切成時空 token，加上空間與時間位置編碼，堆疊雙向 Mamba block（承襲 Vim）。</li>
+        <li><b>時空掃描順序</b>：3D token 要攤平成 1D 序列，論文比較了多種掃描方式（空間優先、時間優先等）。我讀到的結論是 spatial-first 雙向掃描表現最好 <span class="todo">待確認</span>。</li>
+        <li><b>自蒸餾（self-distillation）</b>：作者發現純 Mamba 模型放大時容易 overfit，因此先訓練較小的模型當 teacher，再用它的特徵引導大模型訓練，讓模型在不依賴大規模資料預訓練的情況下也能擴展。</li>
+        <li><b>Masked pretraining</b>：也探討了遮罩預訓練策略（遮罩方式、對齊層、遮罩比例）對短影片理解的影響。細節 <span class="todo">待確認</span></li>
+      </ol>
+      <div class="figure-note">影片（T 幀）→ 3D patch embedding → 時空 token + 空間 / 時間位置編碼（+ class token）→ 依 spatial-first 順序攤平 → 堆疊雙向 Mamba block → class token → 分類頭。</div>
+    </section>
+
+    <section class="note-section" id="results">
+      <h2 data-n="05">實驗與結果</h2>
+      <p>論文整理出 VideoMamba 的四項核心能力：</p>
+      <ul>
+        <li><b>視覺領域的可擴展性</b>：靠自蒸餾，不需大規模資料集預訓練就能放大模型。</li>
+        <li><b>對短期動作敏感</b>：能辨識只有細微動作差異的短期動作。</li>
+        <li><b>長影片理解</b>：相較傳統 feature-based 方法有明顯進步。</li>
+        <li><b>多模態相容</b>：在多模態情境下也表現穩健。<span class="src">Abstract</span></li>
+      </ul>
+      <ul>
+        <li><b>效率</b>：論文稱在短期與長期影片理解上都「更好、更快、更省」；效率測試在 A100-80G、batch size 128 下進行。<span class="src">Fig. 1</span></li>
+        <li><b>各資料集準確率</b>：Kinetics-400、Something-Something V2 等具體數字尚未整理 <span class="todo">待確認</span></li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="pros-cons">
+      <h2 data-n="06">優點與限制</h2>
+      <div class="two-col">
+        <div class="col-pros">
+          <h3>優點</h3>
+          <ul>
+            <li>線性複雜度，可以塞進更多幀、更高解析度。</li>
+            <li>短影片與長影片用同一套架構。</li>
+            <li>程式碼與預訓練權重公開，適合當 baseline。</li>
+          </ul>
+        </div>
+        <div class="col-cons">
+          <h3>限制</h3>
+          <ul>
+            <li>放大時需要自蒸餾等額外技巧，訓練流程比較複雜。</li>
+            <li>攤平順序是人為設計的，時空相鄰的 token 在序列中仍可能相距很遠。</li>
+            <li>以整段影片為輸入，沒有顯式建模「人」這個單位，對多人互動不一定友善。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="note-section" id="relevance">
+      <h2 data-n="07">與我研究的關聯</h2>
+      <div class="ai-draft">
+        <ul>
+          <li>這篇是研究主軸的直接 baseline：Mamba 做影片動作辨識。</li>
+          <li>雙人互動辨識需要建模「兩個人之間」的關係，但 VideoMamba 的 token 是以 patch 為單位，兩人的 token 在掃描序列中可能距離很遠。可能的方向：以人為中心的 token（person-centric tokens）、結合骨架（skeleton）輸入，或設計讓兩人 token 交錯的掃描順序。</li>
+          <li>「對細微動作差異敏感」這點對互動類動作（例如握手 vs. 擊掌）可能有幫助，值得驗證。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="note-section" id="questions">
+      <h2 data-n="08">待解問題與下一步</h2>
+      <div class="ai-draft">
+        <ul>
+          <li>VideoMamba 在 NTU RGB+D 的雙人互動類別上表現如何？有沒有人做過？</li>
+          <li>對照論文 Table 補上 K400 / SSv2 的準確率與 FLOPs。</li>
+          <li>確認掃描順序消融實驗的結論。</li>
+          <li>追讀 Video Mamba Suite 等後續工作（已加入待讀清單）。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="note-section" id="related">
+      <h2 data-n="09">相關筆記</h2>
+      <ul>
+        <li><a href="2023-mamba.html">Mamba</a>：selective SSM 的原始論文。</li>
+        <li><a href="2024-vision-mamba.html">Vision Mamba (Vim)</a>：本篇沿用的雙向 block 來源。</li>
+        <li>名詞：<a href="../glossary.html#spatial-first-scan">Spatial-first scan</a>、<a href="../glossary.html#self-distillation">Self-distillation</a>、<a href="../glossary.html#local-redundancy">Local redundancy</a>、<a href="../glossary.html#two-person-interaction-recognition">Two-person interaction recognition</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Mamba × 影片理解筆記 · 規則見 CLAUDE.md · 以 GitHub Pages 發布</div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+  ★ 論文筆記模板 ★
+  使用方式（詳見 CLAUDE.md 第 7、10 節）：
+  1. 複製本檔 → papers/<年份>-<短名>.html，不要直接修改本檔
+  2. 把所有 {{...}} 換成實際內容
+  3. 9 個 <section> 的 id、順序、標題文字都不能改
+  4. 在 papers.json 新增對應資料
+-->
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{shortName}} — Mamba 影片理解筆記</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body data-page="paper">
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="../index.html">Mamba <span>×</span> 影片理解筆記</a>
+      <nav class="site-nav">
+        <a href="../index.html" class="active">論文</a>
+        <a href="../glossary.html">名詞表</a>
+        <a href="../index.html#about">關於</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="breadcrumb"><a href="../index.html">論文</a> / {{shortName}}</div>
+
+    <header class="paper-header">
+      <h1 class="paper-title">{{shortName}}</h1>
+      <p class="paper-subtitle">{{完整英文標題}}</p>
+      <div class="card-tags">
+        <span class="status status-{{read|reading|to-read}}">{{已讀|閱讀中|待讀}}</span>
+        <span class="tag">{{tag1}}</span>
+        <span class="tag">{{tag2}}</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <a href="#info">基本資訊</a><a href="#tldr">一句話總結</a><a href="#problem">要解決的問題</a>
+      <a href="#method">方法重點</a><a href="#results">實驗與結果</a><a href="#pros-cons">優點與限制</a>
+      <a href="#relevance">與我研究的關聯</a><a href="#questions">待解問題與下一步</a><a href="#related">相關筆記</a>
+    </nav>
+
+    <section class="note-section" id="info">
+      <h2 data-n="01">基本資訊</h2>
+      <table class="info-table">
+        <tr><th>作者</th><td>{{作者，超過 3 位寫前 3 位 + et al.}}</td></tr>
+        <tr><th>發表</th><td>{{會議 / 期刊，不確定寫 arXiv}}</td></tr>
+        <tr><th>arXiv</th><td><a href="https://arxiv.org/abs/{{編號}}">{{編號}}</a></td></tr>
+        <tr><th>程式碼</th><td><a href="{{網址}}">{{網址}}</a></td></tr>
+        <tr><th>閱讀狀態</th><td>{{已讀 / 閱讀中 / 待讀}}</td></tr>
+        <tr><th>閱讀日期</th><td>{{YYYY-MM-DD}}</td></tr>
+      </table>
+    </section>
+
+    <section class="note-section" id="tldr">
+      <h2 data-n="02">一句話總結</h2>
+      <div class="tldr">{{一句話總結}}</div>
+    </section>
+
+    <section class="note-section" id="problem">
+      <h2 data-n="03">要解決的問題</h2>
+      <ul>
+        <li>{{前人方法的不足 1}}</li>
+        <li>{{前人方法的不足 2}}</li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="method">
+      <h2 data-n="04">方法重點</h2>
+      <ol>
+        <li><b>{{概念名稱}}</b>：{{說明}}</li>
+      </ol>
+      <div class="figure-note">{{用文字描述架構圖：輸入 → 模組 → 輸出}}</div>
+    </section>
+
+    <section class="note-section" id="results">
+      <h2 data-n="05">實驗與結果</h2>
+      <ul>
+        <li><b>資料集</b>：{{...}}</li>
+        <li><b>主要結論</b>：{{...}} <span class="src">Table {{X}}</span></li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="pros-cons">
+      <h2 data-n="06">優點與限制</h2>
+      <div class="two-col">
+        <div class="col-pros"><h3>優點</h3><ul><li>{{...}}</li></ul></div>
+        <div class="col-cons"><h3>限制</h3><ul><li>{{...}}</li></ul></div>
+      </div>
+    </section>
+
+    <section class="note-section" id="relevance">
+      <h2 data-n="07">與我研究的關聯</h2>
+      <!-- AI 起草時請用 <div class="ai-draft"> 包起來 -->
+      <div class="ai-draft"><ul><li>{{...}}</li></ul></div>
+    </section>
+
+    <section class="note-section" id="questions">
+      <h2 data-n="08">待解問題與下一步</h2>
+      <div class="ai-draft"><ul><li>{{...}}</li></ul></div>
+    </section>
+
+    <section class="note-section" id="related">
+      <h2 data-n="09">相關筆記</h2>
+      <ul>
+        <li><a href="{{id}}.html">{{shortName}}</a>：{{關係說明}}</li>
+        <li>名詞：<a href="../glossary.html#{{term-slug}}">{{term}}</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Mamba × 影片理解筆記 · 規則見 CLAUDE.md · 以 GitHub Pages 發布</div>
+  </footer>
+</body>
+</html>

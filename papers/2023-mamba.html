@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mamba — Mamba 影片理解筆記</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body data-page="paper">
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="../index.html">Mamba <span>×</span> 影片理解筆記</a>
+      <nav class="site-nav">
+        <a href="../index.html" class="active">論文</a>
+        <a href="../glossary.html">名詞表</a>
+        <a href="../index.html#about">關於</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="breadcrumb"><a href="../index.html">論文</a> / Mamba</div>
+
+    <header class="paper-header">
+      <h1 class="paper-title">Mamba</h1>
+      <p class="paper-subtitle">Mamba: Linear-Time Sequence Modeling with Selective State Spaces</p>
+      <div class="card-tags">
+        <span class="status status-read">已讀</span>
+        <span class="tag">ssm</span>
+        <span class="tag">mamba</span>
+        <span class="tag">efficiency</span>
+        <span class="tag">language-model</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <a href="#info">基本資訊</a><a href="#tldr">一句話總結</a><a href="#problem">要解決的問題</a>
+      <a href="#method">方法重點</a><a href="#results">實驗與結果</a><a href="#pros-cons">優點與限制</a>
+      <a href="#relevance">與我研究的關聯</a><a href="#questions">待解問題與下一步</a><a href="#related">相關筆記</a>
+    </nav>
+
+    <section class="note-section" id="info">
+      <h2 data-n="01">基本資訊</h2>
+      <table class="info-table">
+        <tr><th>作者</th><td>Albert Gu, Tri Dao（CMU、Princeton）</td></tr>
+        <tr><th>發表</th><td>arXiv（2023/12/01 第一版）；正式發表會議 <span class="todo">待確認</span></td></tr>
+        <tr><th>arXiv</th><td><a href="https://arxiv.org/abs/2312.00752">2312.00752</a></td></tr>
+        <tr><th>程式碼</th><td><a href="https://github.com/state-spaces/mamba">github.com/state-spaces/mamba</a></td></tr>
+        <tr><th>閱讀狀態</th><td>已讀</td></tr>
+        <tr><th>閱讀日期</th><td>2026-11-16</td></tr>
+      </table>
+    </section>
+
+    <section class="note-section" id="tldr">
+      <h2 data-n="02">一句話總結</h2>
+      <div class="tldr">讓 SSM 的參數隨輸入改變（selective），再用硬體感知的掃描演算法補回效率，得到線性複雜度、品質接近 Transformer 的序列骨幹。</div>
+    </section>
+
+    <section class="note-section" id="problem">
+      <h2 data-n="03">要解決的問題</h2>
+      <ul>
+        <li><b>Attention 太貴</b>：Transformer 的 self-attention 對序列長度是二次方成本，長序列（長文本、長影片）在計算與記憶體上都吃不消。</li>
+        <li><b>次二次方替代品品質不夠</b>：linear attention、gated convolution、RNN、結構化 SSM（如 S4）雖然快，但在語言這類離散、資訊密集的資料上表現不如 attention。</li>
+        <li><b>關鍵弱點</b>：作者認為這些模型是「線性非時變（LTI）」的，參數不隨內容改變，因此無法做以內容為依據的推理（content-based reasoning）——例如該記住哪個 token、該忽略哪個。</li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="method">
+      <h2 data-n="04">方法重點</h2>
+      <ol>
+        <li><b>選擇性 SSM（selective SSM，S6）</b>：把離散化步長 Δ 以及投影矩陣 B、C 改成「由當前輸入計算」，模型就能依內容決定要保留或遺忘狀態中的資訊。代價是模型變成時變的，不能再用卷積形式一次算完。</li>
+        <li><b>硬體感知演算法（hardware-aware scan）</b>：改用遞迴掃描（recurrent scan），並做 kernel fusion——在 GPU 的 SRAM 中完成離散化與掃描，不把展開後的大狀態寫回 HBM；反向傳播時用重算（recomputation）省記憶體。論文表示其實作在 A100 上比先前方法最多快 3 倍。</li>
+        <li><b>簡化的 Mamba block</b>：把先前 SSM 架構（H3）的 block 與 Transformer 的 MLP block 合併成單一同質 block，整個網路就是這個 block 重複堆疊，沒有 attention，也沒有獨立的 MLP block。</li>
+      </ol>
+      <div class="formula">h_t = Ā_t · h_{t-1} + B̄_t · x_t        # 狀態更新（Ā, B̄ 由 Δ_t 離散化而來）
+y_t = C_t · h_t                      # 輸出
+Δ_t, B_t, C_t = f(x_t)               # ← selective：參數由輸入決定</div>
+      <div class="figure-note">輸入 x → 線性投影分成兩路：一路經過 1D 卷積 + SiLU + selective SSM，另一路經過 SiLU 當作 gate → 兩路相乘 → 線性投影輸出。整個模型由這個 block 加上 residual 與 normalization 堆疊而成。</div>
+    </section>
+
+    <section class="note-section" id="results">
+      <h2 data-n="05">實驗與結果</h2>
+      <ul>
+        <li><b>效率</b>：推論吞吐量約為 Transformer 的 5 倍，且隨序列長度線性擴展；在真實資料上，序列長到百萬級時效能仍持續提升。<span class="src">Abstract</span></li>
+        <li><b>語言建模</b>：Mamba-3B 優於同尺寸的 Transformer，並與兩倍大的 Transformer 相當（預訓練與下游評估皆是）。<span class="src">Abstract</span></li>
+        <li><b>音訊與基因體</b>：超越 SaShiMi、Hyena、Transformer 等先前 SOTA。<span class="src">Sec. 4</span></li>
+        <li><b>合成任務</b>：在 Selective Copying、Induction Heads 上驗證選擇機制的必要性，後者可外推到遠長於訓練時的序列。具體數字 <span class="todo">待確認</span></li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="pros-cons">
+      <h2 data-n="06">優點與限制</h2>
+      <div class="two-col">
+        <div class="col-pros">
+          <h3>優點</h3>
+          <ul>
+            <li>訓練與推論都是線性複雜度。</li>
+            <li>推論時每步常數時間，不需要像 Transformer 一樣存 KV cache。</li>
+            <li>架構簡單、同質，容易堆疊與擴展。</li>
+          </ul>
+        </div>
+        <div class="col-cons">
+          <h3>限制</h3>
+          <ul>
+            <li>掃描是 1D、因果（單向）的；用在影像 / 影片時，必須另外設計「怎麼把 2D/3D 攤平」與「方向」。</li>
+            <li>失去卷積形式後依賴客製 CUDA kernel，移植與部署較麻煩。</li>
+            <li>本篇主要驗證語言、音訊、基因體，沒有直接處理視覺。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="note-section" id="relevance">
+      <h2 data-n="07">與我研究的關聯</h2>
+      <div class="ai-draft">
+        <ul>
+          <li>影片 token 數約為「幀數 × 每幀 patch 數」，長影片用 attention 成本很快爆炸；Mamba 的線性複雜度是把它用在長影片動作辨識的主要動機。</li>
+          <li>選擇機制（依內容決定記住或忽略）在影片上可以理解為「自動挑關鍵幀 / 關鍵區域」，可能適合動作只占影片一小段的情況。</li>
+          <li>本篇是後面 Vim、VideoMamba 的基礎，先理解 Δ、B、C 的角色，之後讀改良版本比較容易。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="note-section" id="questions">
+      <h2 data-n="08">待解問題與下一步</h2>
+      <div class="ai-draft">
+        <ul>
+          <li>Δ 在影片上到底「選」了什麼？能不能把 Δ 的大小視覺化，看是否對應到動作發生的時間點？</li>
+          <li>要補讀前置論文 S4，以及後續的 Mamba-2（已加入待讀清單）。</li>
+          <li>確認本篇的正式發表會議，並補上 Induction Heads 實驗的具體數字。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="note-section" id="related">
+      <h2 data-n="09">相關筆記</h2>
+      <ul>
+        <li><a href="2024-vision-mamba.html">Vision Mamba (Vim)</a>：把 Mamba 改成雙向並加上位置編碼，用在影像。</li>
+        <li><a href="2024-videomamba.html">VideoMamba</a>：再延伸到影片時空建模。</li>
+        <li>名詞：<a href="../glossary.html#state-space-model-ssm">State Space Model</a>、<a href="../glossary.html#selective-ssm-s6">Selective SSM</a>、<a href="../glossary.html#hardware-aware-scan">Hardware-aware scan</a>、<a href="../glossary.html#discretization-step">Discretization step (Δ)</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Mamba × 影片理解筆記 · 規則見 CLAUDE.md · 以 GitHub Pages 發布</div>
+  </footer>
+</body>
+</html>

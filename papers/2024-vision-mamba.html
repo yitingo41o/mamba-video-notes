@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vision Mamba (Vim) — Mamba 影片理解筆記</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body data-page="paper">
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="../index.html">Mamba <span>×</span> 影片理解筆記</a>
+      <nav class="site-nav">
+        <a href="../index.html" class="active">論文</a>
+        <a href="../glossary.html">名詞表</a>
+        <a href="../index.html#about">關於</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="breadcrumb"><a href="../index.html">論文</a> / Vision Mamba (Vim)</div>
+
+    <header class="paper-header">
+      <h1 class="paper-title">Vision Mamba (Vim)</h1>
+      <p class="paper-subtitle">Vision Mamba: Efficient Visual Representation Learning with Bidirectional State Space Model</p>
+      <div class="card-tags">
+        <span class="status status-read">已讀</span>
+        <span class="tag">mamba</span>
+        <span class="tag">vision-backbone</span>
+        <span class="tag">efficiency</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <a href="#info">基本資訊</a><a href="#tldr">一句話總結</a><a href="#problem">要解決的問題</a>
+      <a href="#method">方法重點</a><a href="#results">實驗與結果</a><a href="#pros-cons">優點與限制</a>
+      <a href="#relevance">與我研究的關聯</a><a href="#questions">待解問題與下一步</a><a href="#related">相關筆記</a>
+    </nav>
+
+    <section class="note-section" id="info">
+      <h2 data-n="01">基本資訊</h2>
+      <table class="info-table">
+        <tr><th>作者</th><td>Lianghui Zhu, Bencheng Liao, Qian Zhang, et al.（華中科技大學等）</td></tr>
+        <tr><th>發表</th><td>ICML 2024</td></tr>
+        <tr><th>arXiv</th><td><a href="https://arxiv.org/abs/2401.09417">2401.09417</a></td></tr>
+        <tr><th>程式碼</th><td><a href="https://github.com/hustvl/Vim">github.com/hustvl/Vim</a></td></tr>
+        <tr><th>閱讀狀態</th><td>已讀</td></tr>
+        <tr><th>閱讀日期</th><td>2026-11-16</td></tr>
+      </table>
+    </section>
+
+    <section class="note-section" id="tldr">
+      <h2 data-n="02">一句話總結</h2>
+      <div class="tldr">把影像切成 patch 序列、加上位置編碼，用「雙向」Mamba block 取代 self-attention，得到比 DeiT 更準、在高解析度下更省資源的純 SSM 視覺骨幹。</div>
+    </section>
+
+    <section class="note-section" id="problem">
+      <h2 data-n="03">要解決的問題</h2>
+      <ul>
+        <li><b>ViT 在高解析度下太貴</b>：self-attention 讓高解析度影像的速度與記憶體成本快速上升。</li>
+        <li><b>Mamba 直接搬到視覺有兩個問題</b>：（1）單向建模——原版 Mamba 是因果掃描，但影像沒有「先後」，每個 patch 都需要看到全圖；（2）缺乏位置感知——視覺資料對位置很敏感。</li>
+        <li><b>目標</b>：證明視覺表徵學習不一定需要 self-attention，做出通用、純 SSM 的視覺骨幹。</li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="method">
+      <h2 data-n="04">方法重點</h2>
+      <ol>
+        <li><b>Patch 序列化 + 位置編碼</b>：和 ViT 一樣把影像切成 patch、線性投影成 token，並加上 position embedding 補足位置資訊。</li>
+        <li><b>雙向 Mamba block（bidirectional SSM）</b>：同一串 token 分別做正向與反向的 selective SSM 掃描，再合併，讓每個 token 都能接收前後兩側的資訊。</li>
+        <li><b>Class token</b>：沿用 ViT 用 class token 做分類；論文中 class token 插在序列的中間位置 <span class="todo">待確認</span>。</li>
+      </ol>
+      <div class="figure-note">影像 → 切 patch → 線性投影 + 位置編碼（+ class token）→ 堆疊 L 層 Vim block（每層：normalization → 正向 SSM 與反向 SSM 兩支 → 合併 → residual）→ 取 class token → 分類頭。</div>
+    </section>
+
+    <section class="note-section" id="results">
+      <h2 data-n="05">實驗與結果</h2>
+      <ul>
+        <li><b>任務</b>：ImageNet 分類、COCO 物件偵測、ADE20k 語意分割。</li>
+        <li><b>主要結論</b>：三個任務上表現都優於 DeiT。<span class="src">Abstract</span></li>
+        <li><b>效率</b>：處理高解析度影像時，速度與 GPU 記憶體都明顯優於 DeiT。具體倍數與解析度見論文 <span class="src">Fig. 1</span> <span class="todo">待確認</span></li>
+      </ul>
+    </section>
+
+    <section class="note-section" id="pros-cons">
+      <h2 data-n="06">優點與限制</h2>
+      <div class="two-col">
+        <div class="col-pros">
+          <h3>優點</h3>
+          <ul>
+            <li>純 SSM，沒有 attention，解析度越高優勢越明顯。</li>
+            <li>雙向掃描這個設計很簡單，容易搬到其他模態。</li>
+            <li>可當作偵測、分割的骨幹，通用性已被驗證。</li>
+          </ul>
+        </div>
+        <div class="col-cons">
+          <h3>限制</h3>
+          <ul>
+            <li>2D 影像被攤平成 1D 後，空間上相鄰、但在序列中距離很遠的 patch 之間，關係較難建模。</li>
+            <li>只處理靜態影像，沒有時間維度。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="note-section" id="relevance">
+      <h2 data-n="07">與我研究的關聯</h2>
+      <div class="ai-draft">
+        <ul>
+          <li>VideoMamba 直接以 Vim 的雙向 block 為基礎，所以這篇是理解 VideoMamba 架構的前置知識。</li>
+          <li>「攤平後相鄰關係被拉遠」的問題在影片中會更嚴重（多了時間軸）；在雙人互動中，兩個人的 token 可能在序列中相距很遠，這可能影響互動關係的建模。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="note-section" id="questions">
+      <h2 data-n="08">待解問題與下一步</h2>
+      <div class="ai-draft">
+        <ul>
+          <li>確認 class token 的位置設計，以及作者對不同位置的消融實驗結果。</li>
+          <li>補上 Fig. 1 的具體速度與記憶體數字。</li>
+          <li>比較其他 2D 掃描策略（例如多方向掃描）的論文，看是否比雙向更適合影像。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="note-section" id="related">
+      <h2 data-n="09">相關筆記</h2>
+      <ul>
+        <li><a href="2023-mamba.html">Mamba</a>：本篇的基礎架構（selective SSM）。</li>
+        <li><a href="2024-videomamba.html">VideoMamba</a>：把 Vim 的雙向 block 延伸到影片。</li>
+        <li>名詞：<a href="../glossary.html#bidirectional-scan">Bidirectional scan</a>、<a href="../glossary.html#selective-ssm-s6">Selective SSM</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Mamba × 影片理解筆記 · 規則見 CLAUDE.md · 以 GitHub Pages 發布</div>
+  </footer>
+</body>
+</html>

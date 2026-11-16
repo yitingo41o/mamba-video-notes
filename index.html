@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mamba 影片理解論文筆記</title>
+  <meta name="description" content="State Space Model / Mamba 應用於影片動作辨識的研究論文筆記" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">Mamba <span>×</span> 影片理解筆記</a>
+      <nav class="site-nav">
+        <a href="index.html" class="active">論文</a>
+        <a href="glossary.html">名詞表</a>
+        <a href="#about">關於</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">Research Notebook · SSM for Video</div>
+      <h1>從 Mamba 到影片動作辨識，<br />一篇一篇讀懂。</h1>
+      <p>這是我的研究論文筆記：State Space Model（SSM）與 Mamba 架構，以及它們在影片理解、動作辨識與雙人互動辨識上的應用。每篇筆記都用同一套格式整理，方便比較與回顧。</p>
+      <div class="stats">
+        <div><b id="stat-read">–</b>已讀</div>
+        <div><b id="stat-reading">–</b>閱讀中</div>
+        <div><b id="stat-todo">–</b>待讀</div>
+      </div>
+    </section>
+
+    <div class="filters">
+      <input type="search" id="search" placeholder="搜尋標題、作者、關鍵字…" aria-label="搜尋" />
+      <select id="status-filter" aria-label="閱讀狀態">
+        <option value="all">全部狀態</option>
+        <option value="read">已讀</option>
+        <option value="reading">閱讀中</option>
+        <option value="to-read">待讀</option>
+      </select>
+      <div class="chip-row" id="tag-chips" aria-label="標籤篩選"></div>
+    </div>
+
+    <h2 class="section-label">論文筆記 <small>點卡片看完整筆記</small></h2>
+    <div class="paper-grid" id="list-notes"><p class="empty">載入中…</p></div>
+
+    <h2 class="section-label">待讀清單 <small>還沒寫筆記的論文</small></h2>
+    <div class="paper-grid" id="list-todo"></div>
+
+    <section id="about" class="note-section">
+      <h2 data-n="//">關於這個網站</h2>
+      <p>本站是純靜態網站，內容由 <code>papers.json</code> 與 <code>glossary.json</code> 驅動，每篇筆記依照固定的 9 段格式撰寫。專案規則寫在 repo 的 <code>CLAUDE.md</code>，讓 AI 助手可以照同一套方式持續新增筆記。</p>
+      <p>筆記中標示 <span class="todo">待確認</span> 的地方表示尚未對照原文核實；紫色框表示 AI 起草、我尚未審閱的想法。</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">Mamba × 影片理解筆記 · 規則見 CLAUDE.md · 以 GitHub Pages 發布</div>
+  </footer>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
